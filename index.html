@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayra Property Solutions | Ahmedabad</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <header class="main-header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-city"></i> Mayra <span>Property</span>
+            </a>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#buy" class="nav-link">Buy</a></li>
+                <li><a href="index.html#rent" class="nav-link">Rent</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="post-property.html" class="btn-post">
+                    <i class="fas fa-plus-circle"></i> Post Property <span class="free-badge">FREE</span>
+                </a>
+            </div>
+
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+</header>
+<section class="search-filter-section">
+    <div class="filter-container">
+        <div class="filter-group">
+            <label><i class="fas fa-map-marker-alt"></i> Location</label>
+            <select id="searchLocation">
+                <option value="">All Ahmedabad</option>
+                <option value="Nikol">Nikol</option>
+               
+                <option value="Maninagar">Maninagar</option>
+                <option value="SG Highway">SG Highway</option>
+                <option value="Naroda">Naroda</option>
+                <option value="muthiya">muthiya</option>
+                <option value="Odhav">Odhav</option>
+                <option value="vatva">vatva</option>
+                <option value="Gota">Gota</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-home"></i> Property Type</label>
+            <select id="searchType">
+                <option value="">All Types</option>
+                <option value="Flat">Flat</option>
+                <option value="House">House</option>
+                <option value="Land">Land</option>
+                <option value="Commercial">Commercial</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fas fa-wallet"></i> Budget</label>
+            <select id="searchBudget">
+                <option value="999999999">Any Budget</option>
+                <option value="2000000">Under 20 Lakh</option>
+                <option value="5000000">Under 50 Lakh</option>
+                <option value="10000000">Under 1 Crore</option>
+            </select>
+        </div>
+        <button class="filter-btn" onclick="applyFilters()">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </div>
+</section>
+    <section class="hero">
+        <h1>Find Your Dream Home in Ahmedabad</h1>
+        <p>Verified Plots, Flats, and Houses at Best Prices</p>
+    </section>
+
+    <main class="container">
+        <h2 class="section-title">Latest Listings</h2>
+        <div class="property-grid" id="propertyGrid">
+            <div class="loader">Fetching properties from cloud...</div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db, collection, getDocs, query, orderBy } from './js/firebase-config.js';
+
+        async function loadProperties() {
+            const grid = document.getElementById('propertyGrid');
+            try {
+                const q = query(collection(db, "properties"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                grid.innerHTML = ""; 
+                if (querySnapshot.empty) {
+                    grid.innerHTML = "<p>No properties listed yet.</p>";
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const p = doc.data();
+                    grid.innerHTML += `
+                        <div class="card">
+                            <img src="${p.image}" alt="Property Image">
+                            <div class="card-body">
+                                <span class="tag">${p.type}</span>
+                                <h3>${p.title}</h3>
+                                <p><i class="fas fa-map-marker-alt"></i> ${p.location}, Ahmedabad</p>
+                                <div class="price">₹${Number(p.price).toLocaleString('en-IN')}</div>
+                                <div class="card-footer">
+                                    <a href="tel:${p.mobile}" class="btn-call"><i class="fas fa-phone"></i> Call Owner</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                grid.innerHTML = "<p>Error loading data. Check Firestore Rules.</p>";
+                console.error(error);
+            }
+        }
+        window.onload = loadProperties;
+    </script>
+</body>
+</html>
